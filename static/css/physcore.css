@@ -1,0 +1,484 @@
+/* PhysCoRe project-page styles.
+   Layered on top of Bulma and static/css/index.css, both loaded first in
+   index.html. */
+
+/* ---- Experiment sections ---- */
+.experiment {
+  max-width: 960px;
+  margin: 40px auto 0;
+}
+
+/* Matches the BibTeX heading (Bulma .title inside .content). */
+.experiment-title {
+  text-align: left;
+  color: #363636;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.125;
+  margin-bottom: 1.5rem;
+}
+
+.experiment-desc {
+  text-align: left;
+  color: #444;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 960px;
+  margin: 0 auto 28px;
+}
+
+/* Consecutive description paragraphs sit closer together than the 28px that
+   separates the description block from the hint and media below it. */
+.experiment-desc + .experiment-desc {
+  margin-top: -16px;
+}
+
+/* ---- "Drag the slider" interaction hint ---- */
+.drag-hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 960px;
+  margin: 0 auto 28px;
+  padding: 12px 18px;
+  background: #eef4ff;
+  border: 1px solid #c7d8f5;
+  border-left: 4px solid #3a6ff0;
+  border-radius: 8px;
+  color: #1f2d4d;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* The action carries the emphasis; the terms step down to semibold. */
+.drag-hint-action {
+  font-weight: 700;
+  color: #12213f;
+  text-decoration: underline;
+  text-decoration-color: #9ab6f5;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.drag-hint strong {
+  font-weight: 600;
+}
+
+.drag-hint-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #3a6ff0;
+  color: #fff;
+  animation: drag-hint-nudge 1.6s ease-in-out infinite;
+}
+
+/* Block display drops the inline baseline gap, so the arrow sits dead centre. */
+.drag-hint-icon svg {
+  display: block;
+  width: 17px;
+  height: 17px;
+}
+
+@keyframes drag-hint-nudge {
+  0%, 100% { transform: translateX(-3px); }
+  50%      { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drag-hint-icon { animation: none; }
+}
+
+.colormap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 960px;
+  margin: 0 auto 32px;
+}
+
+/* Labels tinted to the ends of the bar; both darkened to stay legible on white. */
+.colormap-legend .colormap-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.colormap-legend .colormap-label:first-child {
+  color: #472d7b;
+}
+
+.colormap-legend .colormap-label:last-child {
+  color: #7a7512;
+}
+
+.colormap-legend .colormap-bar {
+  width: 240px;
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(to right,
+    #440154, #482878, #3e4a89, #31688e, #26828e,
+    #1f9e89, #35b779, #6ece58, #b5de2b, #fde725);
+}
+
+.viridis-word {
+  font-style: italic;
+  font-weight: 600;
+  background: linear-gradient(to right,
+    #440154, #482878, #3e4a89, #31688e, #26828e,
+    #1f9e89, #35b779, #6ece58, #b5de2b, #fde725);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Family inherited from body (Noto Sans). */
+.video-caption {
+  text-align: center;
+  color: #555;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 14px auto 40px;
+}
+
+/* ---- Video comparison slider ---- */
+.video-compare-container {
+  position: relative;
+  display: block;
+  line-height: 0;
+}
+
+/* Row of comparison widgets sharing a single caption. */
+.compare-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 0 auto 8px;
+}
+
+.compare-row .video-compare-container {
+  width: auto;
+  max-width: none;
+  flex: 1 1 0;
+  margin: 0;
+}
+
+/* The two source videos are hidden; they are only used as pixel
+   sources that get drawn onto the canvas. */
+.video-compare-container video {
+  position: absolute;
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+.videoMerge {
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  background-size: cover;
+  cursor: ew-resize;
+}
+
+/* ---- Overlay playback controls for the comparison canvas ---- */
+.video-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 14px 10px;
+  line-height: normal;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Reveal the bar on hover (and keep it visible while scrubbing). */
+.video-compare-container:hover .video-controls,
+.plan-media:hover .video-controls,
+.video-controls:focus-within {
+  opacity: 1;
+}
+
+.vc-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Play / pause glyphs as vector masks: text characters for these render with
+   font-dependent proportions and looked squashed. */
+.vc-btn::before {
+  content: "";
+  display: block;
+  width: 15px;
+  height: 15px;
+  background-color: currentColor;
+  --vc-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000'%3E%3Cpath d='M8.5 5.2a1 1 0 0 1 1.52-.85l10 6.8a1 1 0 0 1 0 1.7l-10 6.8A1 1 0 0 1 8.5 18.8Z'/%3E%3C/svg%3E");
+  -webkit-mask: var(--vc-glyph) no-repeat center / contain;
+  mask: var(--vc-glyph) no-repeat center / contain;
+}
+
+.vc-btn.is-playing::before {
+  --vc-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000'%3E%3Crect x='6.5' y='4.5' width='4' height='15' rx='1.6'/%3E%3Crect x='13.5' y='4.5' width='4' height='15' rx='1.6'/%3E%3C/svg%3E");
+}
+
+.vc-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* The native range chrome differs per browser, so the track and thumb are
+   drawn here. --vc-progress is set from JS to fill the played portion. */
+.vc-seek {
+  flex: 1 1 auto;
+  min-width: 0;   /* allow the bar to shrink to fit narrow widths */
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;   /* hit area; the visible track is 4px inside it */
+  background: transparent;
+  cursor: pointer;
+}
+
+.vc-seek::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right,
+    #fff var(--vc-progress, 0%), rgba(255, 255, 255, 0.32) var(--vc-progress, 0%));
+}
+
+.vc-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;   /* centre the 12px thumb on the 4px track */
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  transition: transform 0.12s ease;
+}
+
+.vc-seek::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.vc-seek::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: #fff;
+}
+
+.vc-seek::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.vc-seek:hover::-webkit-slider-thumb,
+.vc-seek:active::-webkit-slider-thumb {
+  transform: scale(1.18);
+}
+
+.vc-seek:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Elapsed reads as the live value; the duration sits back so the pair does
+   not look like one long number. Tabular figures stop the width jittering. */
+.vc-time {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+
+.vc-time .vc-elapsed {
+  font-weight: 600;
+}
+
+.vc-time .vc-sep {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.vc-time .vc-duration {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+/* ---- Mobile: stack each comparison row so videos are full-width ---- */
+@media (max-width: 700px) {
+  .compare-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* No hover on touch screens, so keep the controls visible. */
+  .video-controls {
+    opacity: 1;
+  }
+}
+
+/* ---- Teaser figure ---- */
+/* Capped to the title's width. */
+.teaser-figure {
+  display: block;
+  width: 100%;
+  max-width: 1030px;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* ---- Planning clips: plain videos, no comparison canvas ---- */
+.compare-row .plan-item {
+  flex: 1 1 0;
+  width: 0;
+}
+
+.plan-media {
+  position: relative;   /* anchors the overlay control strip */
+  display: block;
+  line-height: 0;
+}
+
+.plan-clip {
+  display: block;
+  width: 100%;
+  border-radius: 3px;
+}
+
+.plan-item .video-caption {
+  margin-bottom: 0;
+}
+
+.goal-word {
+  font-weight: 600;
+  color: #348924;
+}
+
+/* ---- Icon classes ----
+   The glyph lives in CSS as a mask, so the markup stays `<i class="pc-icon
+   pc-icon-github">` and the icon picks up the surrounding text colour. */
+.pc-icon {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  background-color: currentColor;
+  -webkit-mask: var(--pc-icon) no-repeat center / contain;
+  mask: var(--pc-icon) no-repeat center / contain;
+}
+
+.pc-icon-paper {
+  --pc-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M9 13h6'/%3E%3Cpath d='M9 17h4'/%3E%3C/svg%3E");
+}
+
+.pc-icon-github {
+  --pc-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3E%3Cpath d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z'/%3E%3C/svg%3E");
+}
+
+.pc-icon-dataset {
+  --pc-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='5' rx='8' ry='3'/%3E%3Cpath d='M4 5v7c0 1.66 3.58 3 8 3s8-1.34 8-3V5'/%3E%3Cpath d='M4 12v7c0 1.66 3.58 3 8 3s8-1.34 8-3v-7'/%3E%3C/svg%3E");
+}
+
+.footer .icon-link {
+  display: inline-block;
+}
+
+.footer .icon-link .pc-icon {
+  width: 25px;
+  height: 25px;
+}
+
+/* ---- Wrapper keeping the experiment sections off the viewport edges ---- */
+.physcore-experiments {
+  padding: 0 16px 64px;
+}
+
+/* ---- Hero title ----
+   One uniform size for the whole title. Bulma's .is-1 (3rem) overflows the
+   960px container and re-wraps each authored line, which strands "World
+   Models" on a line of its own; this size lets both authored lines fit. */
+.title.is-1.publication-title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.5rem;
+  text-wrap: balance;
+}
+
+/* Give the hero more room than Bulma's 960px so the larger title still fits
+   the two authored lines. Scoped to the hero: body sections stay at 960px. */
+.hero .container.is-max-desktop {
+  max-width: 1180px;
+}
+
+/* The hand-placed break only helps while a full line still fits. */
+@media (max-width: 640px) {
+  .title.is-1.publication-title br {
+    display: none;
+  }
+}
+
+/* ---- Hero metadata: authors / affiliation / venue ---- */
+.publication-authors {
+  margin-bottom: 0.35rem;
+}
+
+.publication-authors:last-of-type {
+  margin-bottom: 0;
+}
+
+/* Keep each name (and its footnote marker) intact; only the author spans
+   carry .author-block, so the venue line is still free to wrap. */
+.publication-authors .author-block {
+  white-space: nowrap;
+}
+
+/* Venue sits between the title and the authors, so it needs a little more
+   air beneath it than the rows inside the author block get. */
+.publication-venue-line {
+  font-size: 1.4rem;
+  margin-bottom: 0.9rem;
+}
+
+.publication-links {
+  margin-top: 1.5rem;
+}

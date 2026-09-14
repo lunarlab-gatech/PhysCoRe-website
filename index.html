@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Physics-Corrected Residual World Models for Material-Aware Deformable Dynamics">
+  <meta name="keywords" content="Deformable Object Manipulation, World Model, Dynamics Modeling">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhysCoRe</title>
+
+  <!-- Open Graph / link previews -->
+  <meta property="og:title" content="PhysCoRe: Physics-Corrected Residual World Models for Material-Aware Deformable Dynamics">
+  <meta property="og:description" content="A physics-corrected residual world model that infers per-particle material from visual observations and corrects a differentiable MPM simulator. CoRL 2026.">
+  <meta property="og:url" content="https://lunarlab-gatech.github.io/PhysCoRe-website/">
+  <meta property="og:type" content="website">
+  <!-- Pipeline figure on a 1200x630 canvas. The URL must be absolute. -->
+  <meta property="og:image" content="https://lunarlab-gatech.github.io/PhysCoRe-website/static/images/teaser.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The PhysCoRe pipeline: segmented RGB-D observations feed the Material from Motion module, and a differentiable MPM simulator rolls out the dynamics with a Residual from Dynamics correction.">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css?v=20260913a">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css?v=20260913a">
+  <link rel="stylesheet" href="./static/css/physcore.css?v=20260913a">
+  <link rel="icon" type="image/png" href="./static/images/lunarlab-icon.png">
+  <link rel="apple-touch-icon" href="./static/images/lunarlab-icon.png">
+
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">PhysCoRe: Physics-Corrected Residual World Models <br>for Material-Aware Deformable Dynamics</h1>
+
+          <div class="publication-authors publication-venue-line">
+            <span><b>Conference on Robot Learning (CoRL) 2026</b></span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://haochengyin.github.io/" target="_blank" rel="noopener noreferrer">Haocheng Yin</a><sup>*</sup>,</span>
+            <span class="author-block">
+              <a href="https://shuohantao.github.io/" target="_blank" rel="noopener noreferrer">Shuohan Tao</a><sup>*</sup>,</span>
+            <span class="author-block">
+              <a href="https://ce.gatech.edu/directory/person/yongsheng-chen" target="_blank" rel="noopener noreferrer">Yongsheng Chen</a>,</span>
+            <span class="author-block">
+              <a href="https://ganlumomo.github.io/" target="_blank" rel="noopener noreferrer">Lu Gan</a>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span>Georgia Institute of Technology</span>
+          </div>
+
+          <div class="is-size-6 publication-authors">
+            <span><sup>*</sup>Equal contribution</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- Paper PDF. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2607.20653"
+                   class="external-link button is-normal is-rounded is-dark"
+                   target="_blank" rel="noopener noreferrer">
+                  <span class="icon"><i class="pc-icon pc-icon-paper"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- arXiv. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2607.20653"
+                   class="external-link button is-normal is-rounded is-dark"
+                   target="_blank" rel="noopener noreferrer">
+                  <span class="icon"><i class="ai ai-arxiv"></i></span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code. -->
+              <span class="link-block">
+                <a href="https://github.com/lunarlab-gatech/PhysCoRe"
+                   class="external-link button is-normal is-rounded is-dark"
+                   target="_blank" rel="noopener noreferrer">
+                  <span class="icon"><i class="pc-icon pc-icon-github"></i></span>
+                  <span>Code</span>
+                </a>
+              </span>
+              <!-- Dataset. -->
+              <span class="link-block">
+                <a href="https://huggingface.co/datasets/GeorgiaTech/PhysCoRe"
+                   class="external-link button is-normal is-rounded is-dark"
+                   target="_blank" rel="noopener noreferrer">
+                  <span class="icon"><i class="pc-icon pc-icon-dataset"></i></span>
+                  <span>Dataset</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser figure. -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/pipeline.png" width="3148" height="1173"
+           alt="PhysCoRe pipeline: a differentiable MPM simulator coupled with the Material from Motion (MfM) and Residual from Dynamics (RfD) modules."
+           class="teaser-figure">
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Predicting how deformable objects evolve under robotic manipulation is a
+            longstanding challenge. Existing approaches typically rely on per-object
+            optimization to fit material parameters, which can be slow and cannot
+            generalize, while end-to-end learned alternatives extrapolate poorly and
+            often violate basic physical structure. We present PhysCoRe, a
+            physics-corrected residual world model that couples a differentiable
+            Material Point Method (MPM) simulator with two feed-forward neural
+            networks. A material refinement module, <em>Material from Motion</em>
+            (MfM), infers per-particle elasticity from visual observations, grounding
+            the simulator in object-specific physics. A residual correction module,
+            <em>Residual from Dynamics</em> (RfD), learns the discrepancy and predicts
+            corrections to the simulator's internal dynamics, absorbing systematic
+            biases that the analytical model cannot capture. This design also supports
+            online material identification on novel objects. MfM adapts from limited
+            interactions, and its predictive uncertainty steers further exploration
+            toward the regions where its estimate is least confident. Experiments on
+            real deformable-object manipulation sequences show that PhysCoRe
+            outperforms state-of-the-art baselines in prediction accuracy, and that
+            its predicted confidence forms a reliable distribution across the object's
+            geometry, providing a natural signal for future confidence-guided
+            exploration.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="physcore-experiments">
+  <section class="experiment">
+    <h2 class="experiment-title">Confidence Map Visualization</h2>
+
+    <p class="experiment-desc">Along with the material itself, MfM predicts a per-particle confidence.
+      We render this confidence onto the object with 3D Gaussian Splatting (3DGS) and overlay it on
+      real manipulation sequences. The confidence is never supervised directly. As more of the
+      object's motion is observed, MfM becomes more confident, and its high-confidence region
+      concentrates on the parts that have actually deformed.</p>
+
+    <p class="experiment-desc">Confidence uses the <span class="viridis-word">viridis</span> colormap,
+      where blue denotes normalized low confidence and yellow denotes normalized high confidence.</p>
+
+    <p class="drag-hint"><span class="drag-hint-icon" aria-hidden="true"><svg viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+        stroke-linejoin="round"><path d="M8 7 3 12l5 5"/><path d="m16 7 5 5-5 5"/><path d="M3 12h18"/></svg></span>
+      <span class="drag-hint-text"><span class="drag-hint-action">Drag the slider</span> on each pair below to wipe between the
+        <strong>RGB observation</strong> and the <strong>confidence map overlay</strong>.</span></p>
+
+    <div class="colormap-legend">
+      <span class="colormap-label">low confidence</span>
+      <span class="colormap-bar"></span>
+      <span class="colormap-label">high confidence</span>
+    </div>
+
+    <!-- Each row = one case of three drag-to-compare widgets (cam2, cam0, cam1).
+         Ids follow `compare_<case>_cam<N>[_suffix]` (<case> = full asset stem). -->
+
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_single_clift_cloth_cam2">
+        <video id="compare_single_clift_cloth_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam2_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam2_rgb.jpg"></video>
+        <video id="compare_single_clift_cloth_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam2_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_clift_cloth_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_single_clift_cloth_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_single_clift_cloth_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_clift_cloth_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_clift_cloth_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_single_clift_cloth_cam0">
+        <video id="compare_single_clift_cloth_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam0_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam0_rgb.jpg"></video>
+        <video id="compare_single_clift_cloth_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam0_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_clift_cloth_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_single_clift_cloth_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_single_clift_cloth_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_clift_cloth_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_clift_cloth_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_single_clift_cloth_cam1">
+        <video id="compare_single_clift_cloth_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam1_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam1_rgb.jpg"></video>
+        <video id="compare_single_clift_cloth_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_cloth/single_clift_cloth_cam1_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_clift_cloth_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_single_clift_cloth_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_single_clift_cloth_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_clift_cloth_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_clift_cloth_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Lifting one corner of a towel</p>
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_double_clift_cloth_cam2">
+        <video id="compare_double_clift_cloth_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam2_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam2_rgb.jpg"></video>
+        <video id="compare_double_clift_cloth_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam2_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_clift_cloth_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_double_clift_cloth_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_double_clift_cloth_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_clift_cloth_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_clift_cloth_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_double_clift_cloth_cam0">
+        <video id="compare_double_clift_cloth_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam0_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam0_rgb.jpg"></video>
+        <video id="compare_double_clift_cloth_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam0_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_clift_cloth_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_double_clift_cloth_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_double_clift_cloth_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_clift_cloth_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_clift_cloth_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_double_clift_cloth_cam1">
+        <video id="compare_double_clift_cloth_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam1_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam1_rgb.jpg"></video>
+        <video id="compare_double_clift_cloth_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_clift_cloth/double_clift_cloth_cam1_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_clift_cloth_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_double_clift_cloth_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_double_clift_cloth_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_clift_cloth_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_clift_cloth_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Lifting two corners of a towel</p>
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_single_clift_rope_cam2">
+        <video id="compare_single_clift_rope_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam2_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam2_rgb.jpg"></video>
+        <video id="compare_single_clift_rope_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam2_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_clift_rope_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_single_clift_rope_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_single_clift_rope_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_clift_rope_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_clift_rope_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_single_clift_rope_cam0">
+        <video id="compare_single_clift_rope_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam0_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam0_rgb.jpg"></video>
+        <video id="compare_single_clift_rope_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam0_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_clift_rope_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_single_clift_rope_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_single_clift_rope_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_clift_rope_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_clift_rope_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_single_clift_rope_cam1">
+        <video id="compare_single_clift_rope_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam1_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam1_rgb.jpg"></video>
+        <video id="compare_single_clift_rope_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_clift_rope/single_clift_rope_cam1_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_clift_rope_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_single_clift_rope_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_single_clift_rope_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_clift_rope_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_clift_rope_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Lifting one end of a rope</p>
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_single_push_rope_cam2">
+        <video id="compare_single_push_rope_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam2_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam2_rgb.jpg"></video>
+        <video id="compare_single_push_rope_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam2_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_push_rope_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_single_push_rope_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_single_push_rope_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_push_rope_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_push_rope_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_single_push_rope_cam0">
+        <video id="compare_single_push_rope_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam0_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam0_rgb.jpg"></video>
+        <video id="compare_single_push_rope_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam0_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_push_rope_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_single_push_rope_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_single_push_rope_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_push_rope_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_push_rope_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_single_push_rope_cam1">
+        <video id="compare_single_push_rope_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam1_rgb.mp4" poster="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam1_rgb.jpg"></video>
+        <video id="compare_single_push_rope_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/single_push_rope/single_push_rope_cam1_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_single_push_rope_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_single_push_rope_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_single_push_rope_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_single_push_rope_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_single_push_rope_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Pushing the middle of a rope</p>
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_double_stretch_bear_1_cam2">
+        <video id="compare_double_stretch_bear_1_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam2_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam2_rgb.jpg"></video>
+        <video id="compare_double_stretch_bear_1_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam2_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_stretch_bear_1_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_double_stretch_bear_1_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_double_stretch_bear_1_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_stretch_bear_1_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_stretch_bear_1_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_double_stretch_bear_1_cam0">
+        <video id="compare_double_stretch_bear_1_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam0_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam0_rgb.jpg"></video>
+        <video id="compare_double_stretch_bear_1_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam0_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_stretch_bear_1_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_double_stretch_bear_1_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_double_stretch_bear_1_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_stretch_bear_1_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_stretch_bear_1_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_double_stretch_bear_1_cam1">
+        <video id="compare_double_stretch_bear_1_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam1_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam1_rgb.jpg"></video>
+        <video id="compare_double_stretch_bear_1_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_stretch_bear_1/double_stretch_bear_1_cam1_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_stretch_bear_1_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_double_stretch_bear_1_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_double_stretch_bear_1_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_stretch_bear_1_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_stretch_bear_1_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Stretching a toy bear</p>
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_double_squeeze_plastic_cam2">
+        <video id="compare_double_squeeze_plastic_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam2_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam2_rgb.jpg"></video>
+        <video id="compare_double_squeeze_plastic_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam2_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_squeeze_plastic_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_double_squeeze_plastic_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_double_squeeze_plastic_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_squeeze_plastic_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_squeeze_plastic_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_double_squeeze_plastic_cam0">
+        <video id="compare_double_squeeze_plastic_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam0_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam0_rgb.jpg"></video>
+        <video id="compare_double_squeeze_plastic_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam0_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_squeeze_plastic_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_double_squeeze_plastic_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_double_squeeze_plastic_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_squeeze_plastic_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_squeeze_plastic_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_double_squeeze_plastic_cam1">
+        <video id="compare_double_squeeze_plastic_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam1_rgb.mp4" poster="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam1_rgb.jpg"></video>
+        <video id="compare_double_squeeze_plastic_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/MfM_conf_overlay/double_squeeze_plastic/double_squeeze_plastic_cam1_conf.mp4"></video>
+        <canvas class="videoMerge" id="compare_double_squeeze_plastic_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_double_squeeze_plastic_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_double_squeeze_plastic_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_double_squeeze_plastic_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_double_squeeze_plastic_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Squeezing a piece of Play-Doh</p>  </section>
+
+  <!-- ===== Experiment 2: Confidence-Guided Material Identification ===== -->
+  <section class="experiment">
+    <h2 class="experiment-title">Confidence-Guided Material Identification</h2>
+
+    <p class="experiment-desc">The same confidence also supplies a signal for active exploration. A KUKA
+      arm probes each object online and interacts next with the regions whose material estimate is least
+      confident. Confidence starts low across the object and rises only after the arm has deformed a
+      region, and it stays low everywhere else. The map therefore indicates where further interaction is
+      still needed.</p>
+
+    <p class="experiment-desc">As in the visualization above, confidence uses the
+      <span class="viridis-word">viridis</span> colormap, with blue denoting normalized low confidence
+      and yellow denoting normalized high confidence.</p>
+
+    <p class="drag-hint"><span class="drag-hint-icon" aria-hidden="true"><svg viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+        stroke-linejoin="round"><path d="M8 7 3 12l5 5"/><path d="m16 7 5 5-5 5"/><path d="M3 12h18"/></svg></span>
+      <span class="drag-hint-text"><span class="drag-hint-action">Drag the slider</span> on each pair below to wipe between the
+        <strong>RGB observation</strong> and the <strong>confidence map overlay</strong>.</span></p>
+
+    <div class="colormap-legend">
+      <span class="colormap-label">low confidence</span>
+      <span class="colormap-bar"></span>
+      <span class="colormap-label">high confidence</span>
+    </div>
+
+    <!-- Each row = one case of three drag-to-compare widgets (cam2, cam0, cam1).
+         Left = RGB observation, right = confidence map overlay.
+         Ids follow `compare_kuka_<case>_cam<N>`. -->
+
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_kuka_rope_cam2">
+        <video id="compare_kuka_rope_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam2_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam2_2x_rgb.jpg"></video>
+        <video id="compare_kuka_rope_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam2_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_rope_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_rope_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_rope_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_rope_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_rope_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_kuka_rope_cam0">
+        <video id="compare_kuka_rope_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam0_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam0_2x_rgb.jpg"></video>
+        <video id="compare_kuka_rope_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam0_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_rope_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_rope_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_rope_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_rope_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_rope_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_kuka_rope_cam1">
+        <video id="compare_kuka_rope_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam1_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam1_2x_rgb.jpg"></video>
+        <video id="compare_kuka_rope_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_rope/kuka_rope_cam1_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_rope_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_rope_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_rope_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_rope_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_rope_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Exploring a rope</p>
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_kuka_cloth_cam2">
+        <video id="compare_kuka_cloth_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam2_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam2_2x_rgb.jpg"></video>
+        <video id="compare_kuka_cloth_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam2_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_cloth_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_cloth_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_cloth_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_cloth_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_cloth_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_kuka_cloth_cam0">
+        <video id="compare_kuka_cloth_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam0_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam0_2x_rgb.jpg"></video>
+        <video id="compare_kuka_cloth_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam0_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_cloth_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_cloth_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_cloth_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_cloth_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_cloth_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_kuka_cloth_cam1">
+        <video id="compare_kuka_cloth_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam1_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam1_2x_rgb.jpg"></video>
+        <video id="compare_kuka_cloth_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_cloth/kuka_cloth_cam1_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_cloth_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_cloth_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_cloth_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_cloth_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_cloth_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Exploring a cloth</p>
+    <div class="compare-row">
+      <div class="video-compare-container" id="compare_kuka_bear_cam2">
+        <video id="compare_kuka_bear_cam2_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam2_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam2_2x_rgb.jpg"></video>
+        <video id="compare_kuka_bear_cam2_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam2_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_bear_cam2_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_bear_cam2_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_bear_cam2_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_bear_cam2_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_bear_cam2_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_kuka_bear_cam0">
+        <video id="compare_kuka_bear_cam0_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam0_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam0_2x_rgb.jpg"></video>
+        <video id="compare_kuka_bear_cam0_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam0_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_bear_cam0_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_bear_cam0_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_bear_cam0_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_bear_cam0_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_bear_cam0_time">0:00 / 0:00</span>
+        </div>
+      </div>
+
+      <div class="video-compare-container" id="compare_kuka_bear_cam1">
+        <video id="compare_kuka_bear_cam1_left" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam1_2x_rgb.mp4" poster="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam1_2x_rgb.jpg"></video>
+        <video id="compare_kuka_bear_cam1_right" loop playsinline muted preload="none"
+          src="./static/videos/Conf_guided_active_learning/kuka_bear/kuka_bear_cam1_2x_overlay.mp4"></video>
+        <canvas class="videoMerge" id="compare_kuka_bear_cam1_canvas"></canvas>
+        <div class="video-controls" id="compare_kuka_bear_cam1_controls">
+          <button type="button" class="vc-btn" id="compare_kuka_bear_cam1_playpause" aria-label="Pause"></button>
+          <input type="range" class="vc-seek" id="compare_kuka_bear_cam1_seek" min="0" max="1000" value="0" aria-label="Seek">
+          <span class="vc-time" id="compare_kuka_bear_cam1_time">0:00 / 0:00</span>
+        </div>
+      </div>
+    </div>
+    <p class="video-caption">Exploring a toy bear</p>  </section>
+
+  <!-- ===== Experiment 3: Goal-Conditioned Planning ===== -->
+  <section class="experiment">
+    <h2 class="experiment-title">Goal-Conditioned Planning</h2>
+
+    <p class="experiment-desc">We use PhysCoRe as the dynamics backend of a goal-conditioned planner.
+      The planner starts from a single RGB-D observation and a goal configuration authored in the
+      simulator. At each control step it moves the gripper along the direction that reduces the
+      predicted distance to the goal the most.</p>
+
+    <p class="experiment-desc">We demonstrate two tasks, lowering a suspended rope onto the table to
+      form half of an &ldquo;S&rdquo; and folding a towel along its diagonal. The
+      <span class="goal-word">green</span> region marks the goal configuration.</p>
+
+    <div class="compare-row">
+      <div class="plan-item">
+        <div class="plan-media" id="plan_rope">
+          <video class="plan-clip" id="plan_rope_video" playsinline muted preload="none"
+            src="./static/videos/Planning/rope/plan_rope_cam2_2x.mp4?v=20260913a"
+            poster="./static/videos/Planning/rope/plan_rope_cam2_2x.jpg?v=20260913a"></video>
+          <div class="video-controls" id="plan_rope_controls">
+            <button type="button" class="vc-btn" id="plan_rope_playpause" aria-label="Pause"></button>
+            <input type="range" class="vc-seek" id="plan_rope_seek" min="0" max="1000" value="0" aria-label="Seek">
+            <span class="vc-time" id="plan_rope_time">0:00 / 0:00</span>
+          </div>
+        </div>
+        <p class="video-caption">Planning a rope into a target shape</p>
+      </div>
+      <div class="plan-item">
+        <div class="plan-media" id="plan_cloth">
+          <video class="plan-clip" id="plan_cloth_video" playsinline muted preload="none"
+            src="./static/videos/Planning/cloth/plan_cloth_cam2_2x.mp4?v=20260913a"
+            poster="./static/videos/Planning/cloth/plan_cloth_cam2_2x.jpg?v=20260913a"></video>
+          <div class="video-controls" id="plan_cloth_controls">
+            <button type="button" class="vc-btn" id="plan_cloth_playpause" aria-label="Pause"></button>
+            <input type="range" class="vc-seek" id="plan_cloth_seek" min="0" max="1000" value="0" aria-label="Seek">
+            <span class="vc-time" id="plan_cloth_time">0:00 / 0:00</span>
+          </div>
+        </div>
+        <p class="video-caption">Planning a cloth into a target shape</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{yin2026physcore,
+  title     = {PhysCoRe: Physics-Corrected Residual World Models for Material-Aware Deformable Dynamics},
+  author    = {Yin, Haocheng and Tao, Shuohan and Chen, Yongsheng and Gan, Lu},
+  booktitle = {Conference on Robot Learning (CoRL)},
+  series    = {Proceedings of Machine Learning Research},
+  publisher = {PMLR},
+  year      = {2026}
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link external-link" href="https://github.com/lunarlab-gatech/PhysCoRe"
+         target="_blank" rel="noopener noreferrer" aria-label="PhysCoRe code on GitHub">
+        <i class="pc-icon pc-icon-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p class="has-text-centered">
+            &copy; 2026 Lunar Lab, Georgia Institute of Technology.
+          </p>
+          <p>
+            We release this website under a <a rel="license noopener noreferrer" target="_blank"
+              href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons
+            Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            We built this page from the <a href="https://github.com/nerfies/nerfies.github.io"
+              target="_blank" rel="noopener noreferrer">Nerfies project page</a>, and we thank
+            its authors for making the template freely available.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="./static/js/video_compare.js?v=20260913a"></script>
+</body>
+</html>
